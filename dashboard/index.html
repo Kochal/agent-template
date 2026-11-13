@@ -1,0 +1,122 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>&lt;PROJECT_NAME&gt; Project Dashboard</title>
+<style>
+:root {
+  --bg: #f3f6f8; --surface: #ffffff; --ink: #13212c; --muted: #566877; --line: #d3dce3;
+  --line-strong: #9fb0bc; --warm: #b23f1c; --warm-soft: #f7e3da; --cool: #1c5d8a; --cool-soft: #dcebf5;
+  --ok: #17694d; --ok-soft: #d9efe6; --hold: #6a5a12; --hold-soft: #f3ecc9;
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d151b; --surface: #141f27; --ink: #e4ecf1; --muted: #93a5b2; --line: #273641;
+    --line-strong: #4b6170; --warm: #f08a63; --warm-soft: #3a2018; --cool: #77b6e0; --cool-soft: #16303f;
+    --ok: #62c9a2; --ok-soft: #15332a; --hold: #dcc76a; --hold-soft: #33300f; color-scheme: dark;
+  }
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.5; margin: 0; }
+.pd-wrap { max-width: 1120px; margin: 0 auto; padding: 28px 16px 64px; display: flex; flex-direction: column; gap: 28px; }
+.pd-wrap h1 { font-size: 28px; line-height: 1.15; font-weight: 600; margin: 0; }
+.pd-wrap h2 { font-size: 20px; font-weight: 600; margin: 0; }
+.pd-wrap h3 { font-size: 15px; font-weight: 600; margin: 0; }
+.pd-wrap p { margin: 0; }
+.pd-wrap code, .num { font-family: var(--font-num); font-size: 0.87em; font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); }
+.head { display: flex; flex-direction: column; gap: 8px; }
+.head .phase { color: var(--muted); max-width: 70ch; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.tile .big { font-family: var(--font-num); font-size: 26px; line-height: 1.1; }
+.tile.attn { border-color: var(--warm); }
+.tile.attn .big { color: var(--warm); }
+.tile .sub { font-size: 13px; color: var(--muted); }
+.gates { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+.gate { padding: 12px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+.gate .gid { font-family: var(--font-num); font-size: 13px; color: var(--cool); }
+.gate .crit { font-size: 13px; color: var(--muted); }
+.pd-nav { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding: 10px 0; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.pd-nav a { color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500; padding: 4px 0; }
+.pd-nav .count { font-family: var(--font-num); font-size: 12px; color: var(--muted); margin-left: 4px; }
+.pd-nav input { margin-left: auto; flex: 1 1 180px; max-width: 280px; font: inherit; font-size: 14px; padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.pd-sec { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 64px; }
+.sec-head p { color: var(--muted); max-width: 78ch; }
+.rows { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+.row { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.row:last-child { border-bottom: 0; }
+.row-top { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+.row-top h3 { flex: 1 1 260px; }
+.rid { font-family: var(--font-num); font-size: 13px; color: var(--cool); }
+.meta { font-size: 13px; color: var(--muted); }
+.kv { display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 4px 12px; font-size: 14px; }
+.kv dt { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; padding-top: 2px; }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+.chip { display: inline-block; font-size: 12px; font-weight: 500; line-height: 1; padding: 4px 8px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
+.chip-implemented, .chip-done, .chip-passed { background: var(--ok-soft); color: var(--ok); }
+.chip-specified, .chip-in-progress { background: var(--cool-soft); color: var(--cool); }
+.chip-pending, .chip-attn { background: var(--warm-soft); color: var(--warm); }
+.chip-open, .chip-area { border-color: var(--line-strong); color: var(--muted); }
+.refs { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.refs code { color: var(--muted); }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+.tbl-wrap table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.tbl-wrap th { text-align: left; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--line-strong); }
+.tbl-wrap td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl-wrap tr:last-child td { border-bottom: 0; }
+.group-label { padding: 8px 14px; background: var(--bg); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+.empty { padding: 16px; color: var(--muted); }
+.foot { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+</style></head><body>
+<div class="pd-wrap">
+<header class="head"><span class="eyebrow">Project dashboard</span>
+<h1>&lt;PROJECT_NAME&gt;</h1>
+<p class="phase">Setup (before G0). Register updated <span class="num">YYYY-MM-DD</span>.</p>
+</header>
+<section class="tiles" aria-label="Summary">
+<div class="tile"><span class="eyebrow">Needs your decision</span><span class="big">0</span><span class="sub">open questions</span></div>
+<div class="tile"><span class="eyebrow">Decisions</span><span class="big">0</span><span class="sub">0 implemented, 0 specified, 0 proposed</span></div>
+<div class="tile"><span class="eyebrow">Decided against</span><span class="big">0</span><span class="sub">options rejected</span></div>
+<div class="tile"><span class="eyebrow">Work packages</span><span class="big">0/1</span><span class="sub">done, 1 in progress</span></div>
+<div class="tile"><span class="eyebrow">Spent</span><span class="big">EUR 0.00</span><span class="sub">logged spend</span></div>
+<div class="tile"><span class="eyebrow">Target</span><span class="big">YYYY-MM-DD</span><span class="sub">milestone target</span></div>
+</section>
+<section class="gates" aria-label="Gates">
+<div class="gate"><div class="row-top"><span class="gid">G0</span><span class="chip chip-open">Open</span></div><h3>Repository &amp; directive setup complete</h3><span class="meta">YYYY-MM-DD</span><span class="crit">Directives 00..NN, register.toml, initial PASS_RULE.md files, and tools/check.sh passing.</span></div>
+</section>
+<nav class="pd-nav" aria-label="Sections">
+<a href="#open">Needs your decision<span class="count">0</span></a>
+<a href="#done">Done<span class="count">0</span></a>
+<a href="#decisions">Decisions<span class="count">0</span></a>
+<a href="#against">Decided against<span class="count">0</span></a>
+<a href="#packages">Work packages<span class="count">1</span></a>
+<input id="pd-filter" type="search" placeholder="Filter all sections" aria-label="Filter all sections">
+</nav>
+<section class="pd-sec" id="open"><div class="sec-head"><h2>Needs your decision</h2></div><div class="rows">
+<p class="empty">No open questions.</p>
+</div></section>
+<section class="pd-sec" id="done"><div class="sec-head"><h2>What has been done</h2></div><div class="rows">
+<p class="empty">No work logged yet.</p>
+</div></section>
+<section class="pd-sec" id="decisions"><div class="sec-head"><h2>Decisions</h2></div><div class="rows">
+<p class="empty">No decisions recorded yet.</p>
+</div></section>
+<section class="pd-sec" id="against"><div class="sec-head"><h2>Decided against</h2></div>
+<div class="tbl-wrap"><table><thead><tr><th>Option rejected</th><th>Why not</th><th>Context</th></tr></thead><tbody>
+</tbody></table></div></section>
+<section class="pd-sec" id="packages"><div class="sec-head"><h2>Work packages</h2></div>
+<div class="tbl-wrap"><table><thead><tr><th>Id</th><th>Package</th><th>Stream</th><th>Gate</th><th>Status</th></tr></thead><tbody>
+<tr data-text="wp-s0 repository setup and directive decomposition setup g0 in progress"><td class="num">WP-S0</td><td>Repository setup and directive decomposition</td><td>Setup</td><td class="num">G0</td><td><span class="chip chip-in-progress">In progress</span></td></tr>
+</tbody></table></div></section>
+<p class="foot">Built deterministically from <code>dashboard/register.toml</code> by <code>tools/build_dashboard.py</code>.</p>
+</div><script>
+(function () {
+  var q = document.getElementById('pd-filter');
+  var items = Array.prototype.slice.call(document.querySelectorAll('[data-text]'));
+  function apply() {
+    var needle = (q.value || '').trim().toLowerCase();
+    items.forEach(function (el) { el.hidden = needle !== '' && el.getAttribute('data-text').indexOf(needle) === -1; });
+  }
+  if (q) { q.addEventListener('input', apply); }
+})();
+</script></body></html>

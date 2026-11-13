@@ -1,0 +1,22 @@
+# Edit through tools/build_dashboard.py (list, show, add, set). See its docstring.
+# WP-S0: replace the placeholders below (name, dates) before the first commit.
+
+[project]
+name = "<PROJECT_NAME>"
+phase = "Setup (before G0)"
+updated = "YYYY-MM-DD"
+launch_target = "YYYY-MM-DD"
+
+[[gate]]
+id = "G0"
+name = "Repository & directive setup complete"
+target = "YYYY-MM-DD"
+status = "open"
+criteria = "Directives 00..NN, register.toml, initial PASS_RULE.md files, and tools/check.sh passing."
+
+[[package]]
+id = "WP-S0"
+name = "Repository setup and directive decomposition"
+stream = "Setup"
+gate = "G0"
+status = "in progress"

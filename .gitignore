@@ -1,0 +1,25 @@
+# Never commit raw data, job outputs, or transient review diffs
+/data/
+/runs/
+/reviews/_diff.patch
+
+# Personal Claude Code settings (shared settings live in .claude/settings.json)
+.claude/settings.local.json
+
+# Python / Node / Rust / CAD / OS artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+node_modules/
+target/
+.DS_Store
+Thumbs.db
+.env
+.env.*
